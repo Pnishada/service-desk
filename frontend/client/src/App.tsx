@@ -8,7 +8,7 @@ import { queryClient } from "./lib/queryClient";
 
 // Pages
 import LoginPage from "@/pages/login/LoginPage";
-import NotFound from "@/pages/not-found/not-found";
+import NotFound from "@/pages/not-found/not-found"; 
 
 // Layout & Auth
 import PrivateRoute from "@/components/PrivateRouter";
@@ -16,19 +16,17 @@ import AppLayout from "@/components/layout/AppLayout";
 
 // Admin pages
 import Dashboard from "@/pages/admin/Dashboard";
-import AdminAnalytics from "./pages/admin/AdminAnalytics";
-import AdminUsers from "./pages/admin/AdminUsers";
-
+import AdminAnalytics from "@/pages/admin/AdminAnalytics";
+import AdminUsers from "@/pages/admin/AdminUsers";
+import TicketPage from "@/pages/ticket-page/TicketPage";
+import TicketForm from "@/components/ticketsComponents/TicketForm";
 
 // Technician pages
 import TechnicianDashboard from "@/pages/technician/TechnicianDashboard";
+import TechnicianTicketsPage from "@/pages/technician/TicketsPage";
 
 // Staff pages
 import StaffPage from "@/pages/staff/StaffPage";
-import TicketForm from "./components/ticketsComponents/TicketForm";
-import TicketPage from "./pages/ticket-page/TicketPage";
-import TechnicianTicketsPage from "./pages/technician/TicketsPage";
-
 
 export default function App() {
   return (
@@ -37,18 +35,18 @@ export default function App() {
         <Router>
           <Toaster />
           <Routes>
-            {/* ---------- Public Route ---------- */}
-            <Route path="/" element={<LoginPage />} />
+            {/* ---------- Public Routes ---------- */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/" element={<Navigate to="/login" replace />} />
 
             {/* ---------- Admin Routes ---------- */}
             <Route element={<PrivateRoute allowedRoles={["admin"]} />}>
               <Route path="/admin" element={<AppLayout />}>
-                <Route index element={<Navigate to="/admin/dashboard" replace />} />
+                <Route index element={<Navigate to="dashboard" replace />} />
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="tickets" element={<TicketPage />} />
                 <Route path="tickets/create" element={<TicketForm />} />
                 <Route path="reports" element={<AdminAnalytics />} />
-
                 <Route path="users" element={<AdminUsers />} />
               </Route>
             </Route>
@@ -56,23 +54,22 @@ export default function App() {
             {/* ---------- Technician Routes ---------- */}
             <Route element={<PrivateRoute allowedRoles={["technician"]} />}>
               <Route path="/technician" element={<AppLayout />}>
-                <Route index element={<Navigate to="/technician/dashboard" replace />} />
+                <Route index element={<Navigate to="dashboard" replace />} />
                 <Route path="dashboard" element={<TechnicianDashboard />} />
                 <Route path="tickets" element={<TechnicianTicketsPage />} />
               </Route>
             </Route>
 
-           {/* ---------- Staff Routes ---------- */}
-          <Route element={<PrivateRoute allowedRoles={["staff"]} />}>
-            <Route path="/staff" element={<AppLayout />}>
-                <Route index element={<Navigate to="/staff/dashboard" replace />} />
+            {/* ---------- Staff Routes ---------- */}
+            <Route element={<PrivateRoute allowedRoles={["staff"]} />}>
+              <Route path="/staff" element={<AppLayout />}>
+                <Route index element={<Navigate to="dashboard" replace />} />
                 <Route path="dashboard" element={<StaffPage />} />
                 <Route path="tickets/create" element={<TicketForm />} />
-                </Route>
-          </Route>
+              </Route>
+            </Route>
 
-
-            {/* ---------- Fallback ---------- */}
+            {/* ---------- Fallback Not Found ---------- */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Router>

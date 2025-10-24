@@ -80,11 +80,8 @@ export default function useAuth() {
 
   // Logout function
   const logout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    setUserState(null);
-    navigate("/"); // Redirect to login page
+    setUser(null);
+    navigate("/"); // redirect to login
   };
 
   const accessToken = localStorage.getItem("accessToken") ?? null;

@@ -52,7 +52,7 @@ export const api = axios.create({
 });
 
 // ==========================================================
-// Request Interceptor (JWT Token)
+// Request Interceptor (Attach Access Token)
 // ==========================================================
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
@@ -98,6 +98,7 @@ api.interceptors.response.use(
         return Promise.reject(error);
       }
     }
+
     return Promise.reject(error);
   }
 );
@@ -106,12 +107,25 @@ api.interceptors.response.use(
 // Auth Functions
 // ==========================================================
 export const loginUser = async (payload: LoginPayload): Promise<{ user: User; token: Tokens }> => {
-  const { data } = await api.post<LoginResponse>("auth/login/", payload);
-  localStorage.setItem("accessToken", data.access);
-  localStorage.setItem("refreshToken", data.refresh);
-  localStorage.setItem("user", JSON.stringify(data.user));
-  return { user: data.user, token: { access: data.access, refresh: data.refresh } };
+  try {
+    const { data } = await api.post<LoginResponse>("auth/login/", payload);
+
+    if (!data.access || !data.refresh || !data.user) {
+      throw new Error("Invalid username or password");
+    }
+
+    // Only return data; do NOT store yet
+    return { user: data.user, token: { access: data.access, refresh: data.refresh } };
+  } catch (err: any) {
+    const msg =
+      err?.response?.data?.detail ||
+      err?.response?.data?.message ||
+      err?.message ||
+      "Invalid username or password";
+    throw new Error(msg);
+  }
 };
+
 
 export const logoutUser = () => {
   localStorage.clear();
@@ -123,7 +137,7 @@ export const logoutUser = () => {
 // ==========================================================
 export const getUsers = async (): Promise<User[]> => {
   const { data } = await api.get<User[]>("users/");
-  return data;
+  return data || [];
 };
 
 export const createUser = async (payload: {
