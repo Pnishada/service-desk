@@ -30,23 +30,33 @@ const STATUS_COLORS: Record<string, string> = {
   CLOSED: "bg-red-500",
 };
 
-const STATUS_TEXT_COLORS: Record<string, string> = {
-  OPEN: "text-blue-500",
-  ASSIGNED: "text-yellow-400",
-  IN_PROGRESS: "text-orange-500",
-  COMPLETED: "text-green-500",
-  CLOSED: "text-red-500",
+// ====================== Ticket Cards CreatedByInfo (compact) ======================
+interface CreatedByInfoProps {
+  created_by_name?: string;
+  division?: { name?: string } | string | null;
+}
+
+const CreatedByInfoCard: React.FC<CreatedByInfoProps> = ({
+  created_by_name,
+  division,
+}) => {
+  const getDivisionName = () => {
+    if (!division) return "N/A";
+    if (typeof division === "string") return division;
+    return division.name || "N/A";
+  };
+
+  return (
+    <div className="mt-4 p-2 bg-gray-50 rounded-lg shadow-sm border border-gray-200 text-sm">
+      <div className="flex flex-col gap-1">
+        <span className="text-gray-800 font-medium">👤 {created_by_name ?? "Unknown"}</span>
+        <span className="text-gray-600">🏢 {getDivisionName()}</span>
+      </div>
+    </div>
+  );
 };
 
-const PIE_COLORS: Record<string, string> = {
-  OPEN: "#3b82f6",
-  ASSIGNED: "#facc15",
-  IN_PROGRESS: "#f97316",
-  COMPLETED: "#16a34a",
-  CLOSED: "#ef4444",
-};
-
-// ====================== Component ======================
+// ====================== StaffDashboard Component ======================
 const StaffDashboard: React.FC = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [filteredTickets, setFilteredTickets] = useState<Ticket[]>([]);
@@ -187,7 +197,11 @@ const StaffDashboard: React.FC = () => {
             <p className="text-sm text-gray-600 mb-3 line-clamp-3">
               {t.description || "No description provided."}
             </p>
-            <div className="flex justify-between text-xs text-gray-500">
+
+            {/* Compact Created By Info for Card */}
+            <CreatedByInfoCard created_by_name={t.created_by_name} division={t.division} />
+
+            <div className="flex justify-between text-xs text-gray-500 mt-2">
               <span>Priority: {t.priority ?? "MEDIUM"}</span>
               <span>{new Date(t.created_at).toLocaleDateString()}</span>
             </div>
@@ -195,7 +209,7 @@ const StaffDashboard: React.FC = () => {
         ))}
       </div>
 
-      {/* === Ticket Modal with History === */}
+      {/* === Ticket Modal with Full Created By === */}
       {selectedTicket && (
         <>
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -210,9 +224,7 @@ const StaffDashboard: React.FC = () => {
                 ✕
               </button>
 
-              <h2 className="text-2xl font-bold mb-2 text-gray-800">
-                {selectedTicket.title}
-              </h2>
+              <h2 className="text-2xl font-bold mb-2 text-gray-800">{selectedTicket.title}</h2>
               <p className="text-gray-600 mb-4">
                 {selectedTicket.description || "No description."}
               </p>
@@ -242,6 +254,33 @@ const StaffDashboard: React.FC = () => {
                     {new Date(selectedTicket.updated_at).toLocaleString()}
                   </p>
                 )}
+              </div>
+
+              {/* Full Created By Section */}
+              <div className="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-200 shadow-sm text-sm space-y-1">
+                <h4 className="font-semibold text-gray-700 mb-1">Created By</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-500">👤</span>
+                    <span className="text-gray-800 font-medium">{selectedTicket.created_by_name ?? "Unknown"}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-500">📧</span>
+                    <span className="text-gray-800 font-medium">{selectedTicket.creator_email ?? "N/A"}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-500">📞</span>
+                    <span className="text-gray-800 font-medium">{selectedTicket.creator_phone ?? "N/A"}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-500">🏢</span>
+                    <span className="text-gray-800 font-medium">
+                      {typeof selectedTicket.division === "string"
+                        ? selectedTicket.division
+                        : selectedTicket.division?.name ?? "N/A"}
+                    </span>
+                  </div>
+                </div>
               </div>
 
               {/* Technician Updates */}
@@ -281,9 +320,7 @@ const StaffDashboard: React.FC = () => {
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-sm text-gray-500 italic">
-                    No technician updates yet.
-                  </p>
+                  <p className="text-sm text-gray-500 italic">No technician updates yet.</p>
                 )}
               </div>
 

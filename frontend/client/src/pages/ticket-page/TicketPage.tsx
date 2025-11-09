@@ -93,11 +93,13 @@ export default function TicketPage() {
         {filteredTickets.map((ticket) => (
           <div
             key={ticket.id}
-            className="p-4 border rounded-lg shadow hover:shadow-lg transition flex justify-between items-center"
+            className="p-4 border rounded-lg shadow hover:shadow-lg transition flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
           >
-            <div>
+            <div className="flex-1">
               <h2 className="font-semibold text-lg">{ticket.title}</h2>
               <p className="text-gray-600">{ticket.description?.slice(0, 80)}...</p>
+
+              {/* Status */}
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-sm font-medium">Status:</span>
                 <span
@@ -108,11 +110,38 @@ export default function TicketPage() {
                   {(ticket.status ?? "OPEN").replace("_", " ")}
                 </span>
               </div>
+
+              {/* Assigned To */}
               {ticket.assigned_to && (
                 <p className="text-gray-500 text-sm mt-1">
                   Assigned to: {ticket.assigned_to.username}
                 </p>
               )}
+
+              {/* Created By Details */}
+              <div className="mt-2 p-2 bg-gray-50 rounded-lg border border-gray-200 shadow-sm">
+                <h3 className="text-sm font-semibold text-gray-700 mb-1">Created By</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-800">
+                  <div className="flex items-center gap-1">
+                    <span>👤</span>
+                    <span>{ticket.created_by_name}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span>📧</span>
+                    <span>{ticket.creator_email}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span>📞</span>
+                    <span>{ticket.creator_phone}</span>
+                  </div>
+                  {ticket.division && (
+                    <div className="flex items-center gap-1">
+                      <span>🏢</span>
+                      <span>{typeof ticket.division === "object" ? ticket.division.name : ticket.division}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
 
             <div className="flex flex-col gap-2">

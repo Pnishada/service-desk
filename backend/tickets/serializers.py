@@ -12,7 +12,7 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "username", "full_name", "email", "role"]
+        fields = ["id", "username", "full_name", "email","role"]
 
 
 # ======================================================
@@ -65,12 +65,17 @@ class CategorySerializer(serializers.ModelSerializer):
 # Ticket Serializer (Read)
 # ======================================================
 class TicketSerializer(serializers.ModelSerializer):
-    created_by = UserSerializer(read_only=True)
+    created_by = UserSerializer(read_only=True) 
     assigned_to = UserSerializer(read_only=True)
     history = TicketHistorySerializer(many=True, read_only=True)
     branch = BranchSerializer(read_only=True)
     division = DivisionSerializer(read_only=True)
     category = CategorySerializer(read_only=True)
+    #new..............................................
+    created_by_name = serializers.SerializerMethodField()
+    creator_email = serializers.SerializerMethodField()
+    creator_phone = serializers.SerializerMethodField()
+
 
     class Meta:
         model = Ticket
@@ -93,6 +98,9 @@ class TicketSerializer(serializers.ModelSerializer):
             "updated_at",
             "completed_at",
             "history",
+            "created_by_name", #new....
+            "creator_email",
+            "creator_phone",
         ]
         read_only_fields = [
             "created_by",
@@ -102,6 +110,22 @@ class TicketSerializer(serializers.ModelSerializer):
             "completed_at",
             "history",
         ]
+
+#new.............................................
+    def get_created_by_name(self, obj):
+        if obj.created_by and obj.created_by.full_name:
+            return obj.created_by.full_name
+        return obj.full_name or "N/A"
+
+    def get_creator_email(self, obj):
+        if obj.created_by and obj.created_by.email:
+            return obj.created_by.email
+        return obj.email or "N/A"
+
+    def get_creator_phone(self, obj):
+        if obj.created_by and getattr(obj.created_by, "phone", None):
+            return obj.created_by.phone
+        return obj.phone or "N/A"
 
 
 # ======================================================

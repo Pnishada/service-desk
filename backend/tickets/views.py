@@ -60,10 +60,18 @@ class TicketViewSet(viewsets.ModelViewSet):
     # Create Ticket
     # ----------------------------
     def perform_create(self, serializer):
-        ticket = serializer.save(created_by=self.request.user)
+        user = self.request.user
+        ticket = serializer.save(
+            created_by=user,
+            full_name=user.full_name,
+            email=user.email,
+            phone=user.phone
+        )
+
+        # Notification
         Notification.objects.create(
-            user=self.request.user,
-            ticket=ticket,  
+            user=user,
+            ticket=ticket,
             message=f"New ticket '{ticket.title}' created successfully."
         )
 
@@ -119,29 +127,32 @@ class TicketViewSet(viewsets.ModelViewSet):
         ticket.status = Ticket.STATUS_ASSIGNED
         ticket.save()
 
-        # Create ticket history
+        # Ticket history
         TicketHistory.objects.create(
             ticket=ticket,
             action=f"Ticket assigned to {technician.get_full_name() or technician.username}",
             performed_by=request.user
         )
 
-        # add ticket reference
+        # Notification
         Notification.objects.create(
             user=technician,
             ticket=ticket,
             message=f"You have been assigned a new ticket: {ticket.title}"
         )
 
-        # Optional: email notification
+        # Optional email
         if technician.email:
-            send_mail(
-                subject=f"Ticket Assigned: {ticket.title}",
-                message=f"You have been assigned a new ticket.\n\nTitle: {ticket.title}\nDescription: {ticket.description}",
-                from_email="noreply@naita.lk",
-                recipient_list=[technician.email],
-                fail_silently=True,
-            )
+            try:
+                send_mail(
+                    subject=f"Ticket Assigned: {ticket.title}",
+                    message=f"You have been assigned a new ticket.\n\nTitle: {ticket.title}\nDescription: {ticket.description}",
+                    from_email="noreply@naita.lk",
+                    recipient_list=[technician.email],
+                    fail_silently=True,
+                )
+            except Exception:
+                pass
 
         return Response(
             {"message": f"Ticket assigned to {technician.get_full_name() or technician.username}"},
@@ -187,7 +198,6 @@ class TicketViewSet(viewsets.ModelViewSet):
             comment=comment
         )
 
-        # include ticket in Notification
         Notification.objects.create(
             user=ticket.created_by,
             ticket=ticket,
@@ -218,7 +228,7 @@ class TicketViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["get"], url_path="history")
     def history(self, request, pk=None):
         ticket = self.get_object()
-        history = ticket.history.all().order_by("timestamp")
+        history = TicketHistory.objects.filter(ticket=ticket).order_by("-timestamp")
         serializer = TicketHistorySerializer(history, many=True)
         return Response(serializer.data)
 

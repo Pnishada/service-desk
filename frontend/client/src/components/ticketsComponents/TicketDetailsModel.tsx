@@ -77,6 +77,16 @@ export default function TicketDetailsModal({ ticketId, onClose }: Props) {
       </div>
     );
   }
+   //created_by is a number or a full User object
+  const createdBy =
+  typeof ticket.created_by === "object" && ticket.created_by !== null
+    ? ticket.created_by
+    : null;
+
+const creatorName = createdBy
+  ? `${createdBy.full_name} (${createdBy.email})`
+  : `${ticket.full_name} (${ticket.email})`;
+
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -125,6 +135,37 @@ export default function TicketDetailsModal({ ticketId, onClose }: Props) {
               {(ticket.status ?? "OPEN").replace("_", " ")}
             </span>
           </div>
+   {/* =========================
+              Created By Details
+          ========================== */}
+          <div className="mt-4 p-4 bg-gray-50 rounded-lg shadow-sm border border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-700 mb-3">Created By</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-gray-500">👤</span>
+                <span className="text-gray-800 font-medium">{ticket.created_by_name}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-gray-500">📧</span>
+                <span className="text-gray-800 font-medium">{ticket.creator_email}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-gray-500">📞</span>
+                <span className="text-gray-800 font-medium">{ticket.creator_phone}</span>
+              </div>
+              {ticket.division && (
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-500">🏢</span>
+                  <span className="text-gray-800 font-medium">
+                    {typeof ticket.division === "object" ? ticket.division.name : ticket.division}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+
+
+           {/* ......................................... */}
 
           {ticket.assigned_to && (
             <div className="flex flex-wrap gap-2 mb-4">

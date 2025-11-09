@@ -1,4 +1,4 @@
-# apps/users/seed_users.py
+
 from django.contrib.auth import get_user_model
 from branches.models import Branch
 

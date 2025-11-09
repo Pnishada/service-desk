@@ -104,6 +104,18 @@ const TechnicianTicketsPage: React.FC = () => {
               </div>
               <p className="text-gray-600 text-sm mb-4 line-clamp-3">{ticket.description}</p>
               <div className="flex justify-between items-center">
+
+                {/* Creator Details */}
+              <div className="text-xs text-gray-500 space-y-1 mb-3">
+                <p>👤 {ticket.created_by_name}</p>
+                <p>📧 {ticket.creator_email}</p>
+                <p>📞 {ticket.creator_phone}</p>
+                {ticket.division && (
+                  <p>🏢 {typeof ticket.division === "object" ? ticket.division.name : ticket.division}</p>
+                )}
+              </div>
+
+
                 {canUpdateStatus && (
                   <button
                     onClick={(e) => {

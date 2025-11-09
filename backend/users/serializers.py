@@ -22,6 +22,7 @@ class UserSerializer(serializers.ModelSerializer):
             "branch",
             "branch_name",
             "password",
+            "phone",
             "is_active",
             "date_joined",
         ]

@@ -24,6 +24,7 @@ export interface User {
   email?: string;
   role: Role;
   branch?: Branch | string | null;
+  phone?: string; 
   is_active?: boolean;
 }
 

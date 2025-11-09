@@ -1,7 +1,7 @@
 "use client";
 
 import api from "./axios";
-import type { User, Branch, Division } from "./axios";
+import type { User, Branch } from "./axios";
 
 export type TicketStatus = "OPEN" | "ASSIGNED" | "IN_PROGRESS" | "COMPLETED" | "CLOSED";
 export type TicketPriority = "LOW" | "MEDIUM" | "HIGH";
@@ -29,6 +29,11 @@ export interface Technician {
   role: string;
 }
 
+export interface Division {
+  id: number;
+  name: string;
+}
+
 
 export interface Ticket {
   id: number;
@@ -43,14 +48,17 @@ export interface Ticket {
   email?: string;
   phone?: string;
   file?: string | null;
-  created_by?: User | number;
+  created_by?: User | number | null;
   assigned_to?: User | null;
   created_at: string;
   updated_at: string;
   completed_at?: string | null;
   history?: TicketHistoryEntry[];
+  // Add these
+  created_by_name?: string;
+  creator_email?: string;
+  creator_phone?: string;
 }
-
 export interface Notification {
   id: number;
   user: User;
@@ -68,11 +76,20 @@ export const fetchAllTickets = async (): Promise<Ticket[]> => {
   return data || [];
 };
 
-export const fetchMyTickets = async (): Promise<Ticket[]> => {
+export const fetchMyTickets = async (): Promise<Ticket[]> => { //new..............
   const { data } = await api.get<Ticket[]>("tickets/mine/");
-  return data || [];
-};
 
+  // Ensure created_by is always an object or null
+  const normalized = (data || []).map((t) => ({
+    ...t,
+    created_by:
+      t.created_by && typeof t.created_by === "object"
+        ? t.created_by
+        : null,
+  }));
+
+  return normalized;
+};
 export const fetchAssignedTickets = async (): Promise<Ticket[]> => {
   const { data } = await api.get<Ticket[]>("tickets/assigned/");
   return data || [];
@@ -107,6 +124,7 @@ export const fetchTicketHistory = async (ticketId: number): Promise<TicketHistor
 
 export const fetchTicket = async (ticketId: number): Promise<Ticket> => {
   const { data } = await api.get<Ticket>(`tickets/${ticketId}/`);
+  console.log("Fetched Ticket:", data);
   return data;
 };
 

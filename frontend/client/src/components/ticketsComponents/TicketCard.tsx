@@ -1,4 +1,4 @@
-import type { Ticket, TicketStatus } from "@/api/tickets";
+import type { Ticket, TicketStatus, Division } from "@/api/tickets";
 
 interface Props {
   ticket: Ticket;
@@ -11,6 +11,28 @@ export default function TicketCard({ ticket, onSelect, onStatusUpdated }: Props)
     const updatedTicket: Ticket = { ...ticket, status: newStatus };
     onStatusUpdated?.(updatedTicket); // Call callback if provided
   };
+
+   // Helper to safely get division name
+    const getDivisionName = (division?: Division | string | null) => {
+    if (!division) return "N/A";
+    if (typeof division === "string") return division;
+    return division.name || "N/A";
+  };
+
+  const getCreatorName = () => {
+    if (typeof ticket.created_by === "object" && ticket.created_by) {
+      return ticket.created_by.full_name || ticket.created_by.username;
+    }
+    return ticket.full_name || "N/A";
+  };
+
+  const getCreatorEmail = () => {
+    if (typeof ticket.created_by === "object" && ticket.created_by) {
+      return ticket.created_by.email || "N/A";
+    }
+    return ticket.email || "N/A";
+  };
+
 
   return (
     <div
@@ -25,10 +47,33 @@ export default function TicketCard({ ticket, onSelect, onStatusUpdated }: Props)
             : ticket.description}
         </p>
 
+           {/* Created By Section */}
+        <div className="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-200 shadow-sm text-sm space-y-1">
+          <h4 className="font-semibold text-gray-700 mb-1">Created By</h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div className="flex items-center gap-2">
+              <span className="text-gray-500">👤</span>
+              <span className="text-gray-800 font-medium">{getCreatorName()}</span>
+            </div>
+            
+           
+            <div className="flex items-center gap-2">
+              <span className="text-gray-500">🏢</span>
+              <span className="text-gray-800 font-medium">{getDivisionName(ticket.division)}</span>
+            </div>
+          </div>
+        </div>
+
+        </div>
+
         <div className="mt-2 flex gap-2 text-xs">
           <span className="px-2 py-1 rounded bg-gray-100">{ticket.status}</span>
           <span className="px-2 py-1 rounded bg-gray-50">{ticket.priority ?? "MEDIUM"}</span>
         </div>
+
+           <div className="mt-2 text-sm space-y-1">
+         
+
 
         {/* Example button to simulate status update */}
         <button
