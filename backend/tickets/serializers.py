@@ -12,7 +12,7 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "username", "full_name", "email","role"]
+        fields = ["id", "username", "full_name", "email", "role"]
 
 
 # ======================================================
@@ -65,17 +65,17 @@ class CategorySerializer(serializers.ModelSerializer):
 # Ticket Serializer (Read)
 # ======================================================
 class TicketSerializer(serializers.ModelSerializer):
-    created_by = UserSerializer(read_only=True) 
+    created_by = UserSerializer(read_only=True)
     assigned_to = UserSerializer(read_only=True)
     history = TicketHistorySerializer(many=True, read_only=True)
     branch = BranchSerializer(read_only=True)
     division = DivisionSerializer(read_only=True)
     category = CategorySerializer(read_only=True)
-    #new..............................................
+
+    # New fields
     created_by_name = serializers.SerializerMethodField()
     creator_email = serializers.SerializerMethodField()
     creator_phone = serializers.SerializerMethodField()
-
 
     class Meta:
         model = Ticket
@@ -98,7 +98,7 @@ class TicketSerializer(serializers.ModelSerializer):
             "updated_at",
             "completed_at",
             "history",
-            "created_by_name", #new....
+            "created_by_name",
             "creator_email",
             "creator_phone",
         ]
@@ -111,7 +111,7 @@ class TicketSerializer(serializers.ModelSerializer):
             "history",
         ]
 
-#new.............................................
+    # Methods for new fields
     def get_created_by_name(self, obj):
         if obj.created_by and obj.created_by.full_name:
             return obj.created_by.full_name
@@ -176,5 +176,9 @@ class NotificationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Notification
-        fields = ["id", "message", "user", "read", "created_at"]
+        fields = ["id",        
+                  "message", 
+                  "user", 
+                  "read", 
+                  "created_at"]
         read_only_fields = ["user", "created_at"]
