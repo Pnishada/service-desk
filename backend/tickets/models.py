@@ -3,6 +3,8 @@ from django.conf import settings
 from django.utils import timezone
 from branches.models import Branch
 from categories.models import Category
+import os
+from django.utils.crypto import get_random_string
 
 User = settings.AUTH_USER_MODEL
 
@@ -16,6 +18,16 @@ class Division(models.Model):
 
     def __str__(self):
         return self.name
+
+
+# ----------------------------
+# Function to handle file upload path with short names
+# ----------------------------
+def ticket_file_path(instance, filename):
+    ext = filename.split('.')[-1]
+    # Generate short unique filename
+    filename = f"{get_random_string(8)}.{ext}"
+    return os.path.join("ticket_files", filename)
 
 
 # ----------------------------
@@ -58,7 +70,7 @@ class Ticket(models.Model):
     full_name = models.CharField(max_length=255, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
-    file = models.FileField(upload_to="ticket_files/", blank=True, null=True)
+    file = models.FileField(upload_to=ticket_file_path, blank=True, null=True, max_length=500)
     due_date = models.DateTimeField(null=True, blank=True)
 
     created_by = models.ForeignKey(
