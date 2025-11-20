@@ -1,4 +1,4 @@
-import type { Ticket, TicketStatus } from "@/api/tickets";
+import type { Ticket, TicketStatus, Division } from "@/api/tickets";
 
 interface Props {
   ticket: Ticket;
@@ -11,6 +11,13 @@ export default function TicketCard({ ticket, onSelect, onStatusUpdated }: Props)
     const updatedTicket: Ticket = { ...ticket, status: newStatus };
     onStatusUpdated?.(updatedTicket); // Call callback if provided
   };
+
+   // Helper to safely get division name
+  const getDivisionName = (division?: Division | string | null) => {
+    if (!division) return "N/A";
+    return typeof division === "string" ? division : division.name;
+  };
+
 
   return (
     <div
@@ -29,6 +36,19 @@ export default function TicketCard({ ticket, onSelect, onStatusUpdated }: Props)
           <span className="px-2 py-1 rounded bg-gray-100">{ticket.status}</span>
           <span className="px-2 py-1 rounded bg-gray-50">{ticket.priority ?? "MEDIUM"}</span>
         </div>
+
+           <div className="mt-2 text-sm space-y-1">
+          <p>
+            <strong>Division:</strong> {getDivisionName(ticket.division)}
+          </p>
+          <p>
+            <strong>Created By:</strong> {ticket.created_by_name || "N/A"}
+          </p>
+          <p>
+            <strong>Phone:</strong> {ticket.phone || "N/A"}
+          </p>
+        </div>
+
 
         {/* Example button to simulate status update */}
         <button

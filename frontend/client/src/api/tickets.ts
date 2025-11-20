@@ -29,6 +29,11 @@ export interface Technician {
   role: string;
 }
 
+export interface Division {
+  id: number;
+  name: string;
+}
+
 
 export interface Ticket {
   id: number;
@@ -49,6 +54,7 @@ export interface Ticket {
   updated_at: string;
   completed_at?: string | null;
   history?: TicketHistoryEntry[];
+  created_by_name?: string;
 }
 
 export interface Notification {

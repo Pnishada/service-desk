@@ -71,6 +71,7 @@ class TicketSerializer(serializers.ModelSerializer):
     branch = BranchSerializer(read_only=True)
     division = DivisionSerializer(read_only=True)
     category = CategorySerializer(read_only=True)
+    created_by_name = serializers.CharField(source='created_by.get_full_name', read_only=True)  
 
     class Meta:
         model = Ticket
@@ -93,6 +94,7 @@ class TicketSerializer(serializers.ModelSerializer):
             "updated_at",
             "completed_at",
             "history",
+            "created_by_name", 
         ]
         read_only_fields = [
             "created_by",
